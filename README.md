@@ -16,7 +16,58 @@
 # limitations under the License.
 #
 -->
+# Fork改动
+1. 修改一部分dockerfile，解决在国内构建openwhisk中的奇怪问题
+  * https://hub.docker.com/repository/docker/heersin/openjdk-alpine-china
+  * https://hub.docker.com/repository/docker/heersin/ow-utils-china
+2. 预下载一部分文件，方便没有网络条件的情况下手动添加
+3. 加入搭建时用的两个脚本。
 
+## 背景
+主要是搭建过程中时常遇到一些网络问题(<a href="">issue#4888</a>)，比如alpine/ubuntu的源问题
+```sh
+$ apk add --no-cache bash
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.7/community/x86_64/APKINDEX.tar.gz
+(1/6) Installing pkgconf (1.3.10-r0)
+(2/6) Installing ncurses-terminfo-base (6.0_p20171125-r0)
+(3/6) Installing ncurses-terminfo (6.0_p20171125-r0)
+ERROR: ncurses-terminfo-6.0_p20171125-r0: Protocol error
+(4/6) Installing ncurses-libs (6.0_p20171125-r0)
+(5/6) Installing readline (7.0.003-r0)
+(6/6) Installing bash (4.4.19-r1)
+ERROR: bash-4.4.19-r1: Protocol error
+Executing busybox-1.27.2-r7.trigger
+2 errors; 5 MiB in 15 packages
+```
+以及构建ow-utils时需要从google上下载一个东西，对于构建大型项目来说耗时太长了。所以对原始构建过程中的一些配置进行改动，以及构建了2个docker image解决网络问题。
+
+
+## 项目文件
+- Docker File改动
+  * common/scala/Dockerfile, 原始dockerfile备份为.bak
+  * tools/ow-utils/Dockerfile, 原始dockerfile备份为.bak
+
+- pre_download_and_script
+  * APKINDEX.tar.gz -- alpine 所需
+  * OpenWhisk_CLI-latest-linux-amd64.tgz -- owutils 所需
+  * kubectl -- owutils 所需
+  * start_wsk.sh -- 启动ansible的命令
+  * wsk_env.sh -- wsk_env 相关环境变量(手动在shell中输入而非执行脚本)
+
+## Quick Start
+构建过程参考原始项目即可([Deploy to Docker for Ubuntu](./tools/ubuntu-setup/README.md))，这里仅仅是个人搭建时的一些经验
+1. ubuntu需要安装npm，在构建一个组件的时候需要，然而openwhisk的readme上似乎并没有提醒。
+2. 构建过程中最好开启debug模式即"./gradlew distDocker --debug",方便出问题时排查
+3. 需要更换如pip源、apt源等可以阅读对应Dockerfile，找到启动的镜像，若镜像内有sed，则可以用sed在dockerfile内写命令对docker的源配置进行修改。没有的话可能需要启动镜像，修改后commit，然后在dockerfile里引用自己修改后的镜像。
+4. 可能用到的命令
+```
+docker run -it [IMAGE] "/bin/bash" 启动docker内的shell(也可能没有bash，换成sh)
+docker cp [file_path] [docker_name]:/path/to/ 从外部拷贝文件到docker内
+docker ps -a 列出运行中的docker
+```
+
+# ==========原始项目简介==========
 # OpenWhisk
 
 [![Build Status](https://travis-ci.org/apache/openwhisk.svg?branch=master)](https://travis-ci.org/apache/openwhisk)
