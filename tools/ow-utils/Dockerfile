@@ -15,43 +15,48 @@
 # limitations under the License.
 #
 
-FROM adoptopenjdk/openjdk8:jdk8u191-b12
+#FROM adoptopenjdk/openjdk8:jdk8u191-b12
+FROM adoptopenjdk-openjdk8/owutils-china:latest
 
 ENV DOCKER_VERSION 1.12.0
 ENV KUBECTL_VERSION v1.16.3
 ENV WHISK_CLI_VERSION latest
 ENV WHISKDEPLOY_CLI_VERSION latest
 
-RUN apt-get update && apt-get install -y \
-  git \
-  libffi-dev \
-  nodejs \
-  npm \
-  python \
-  python-pip \
-  wget \
-  zip \
-&& rm -rf /var/lib/apt/lists/*
+#RUN sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list
+#RUN sed -i s@/security.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list
+
+#RUN apt-get update && apt-get install -y \
+#  git \
+#  libffi-dev \
+#  nodejs \
+#  npm \
+#  python \
+#  python-pip \
+#  wget \
+#  zip \
+#&& rm -rf /var/lib/apt/lists/*
 
 # Python packages
-RUN pip install --upgrade pip
-RUN pip install --upgrade setuptools
-RUN pip install ansible==2.5.2 && \
-    pip install jinja2==2.9.6 && \
-    pip install docker
+#RUN pip install --upgrade pip
+#RUN pip install --upgrade setuptools
+#RUN pip install ansible==2.5.2 && \
+#    pip install jinja2==2.9.6 && \
+#    pip install docker
 
 # Install docker client
-RUN wget --no-verbose https://get.docker.com/builds/Linux/x86_64/docker-${DOCKER_VERSION}.tgz && \
-  tar --strip-components 1 -xvzf docker-${DOCKER_VERSION}.tgz -C /usr/bin docker/docker && \
-  rm -f docker-${DOCKER_VERSION}.tgz && \
-  chmod +x /usr/bin/docker
+#RUN wget --no-verbose https://get.docker.com/builds/Linux/x86_64/docker-${DOCKER_VERSION}.tgz && \
+#  tar --strip-components 1 -xvzf docker-${DOCKER_VERSION}.tgz -C /usr/bin docker/docker && \
+#  rm -f docker-${DOCKER_VERSION}.tgz && \
+#  chmod +x /usr/bin/docker
 
 # Install kubectl in /usr/local/bin
-RUN curl -Lo ./kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
+#RUN curl -Lo ./kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
+RUN chmod +x kubectl && mv kubectl /usr/local/bin/kubectl
 
 # Install `wsk` cli in /usr/local/bin
-RUN wget -q https://github.com/apache/openwhisk-cli/releases/download/$WHISK_CLI_VERSION/OpenWhisk_CLI-$WHISK_CLI_VERSION-linux-amd64.tgz && \
-  tar xzf OpenWhisk_CLI-$WHISK_CLI_VERSION-linux-amd64.tgz -C /usr/local/bin wsk && \
+#RUN wget -q https://github.com/apache/openwhisk-cli/releases/download/$WHISK_CLI_VERSION/OpenWhisk_CLI-$WHISK_CLI_VERSION-linux-amd64.tgz && \
+RUN tar xzf OpenWhisk_CLI-$WHISK_CLI_VERSION-linux-amd64.tgz -C /usr/local/bin wsk && \
   rm OpenWhisk_CLI-$WHISK_CLI_VERSION-linux-amd64.tgz
 
 # Install wskadmin in /bin

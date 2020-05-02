@@ -14,16 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM adoptopenjdk/openjdk11-openj9:x86_64-alpine-jdk-11.0.6_10_openj9-0.18.1
+# FROM adoptopenjdk/openjdk11-openj9:x86_64-alpine-jdk-11.0.6_10_openj9-0.18.1
+FROM change/apk:latest
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # Switch to the HTTPS endpoint for the apk repositories as per https://github.com/gliderlabs/docker-alpine/issues/184
-RUN sed -i 's/http\:\/\/dl-cdn.alpinelinux.org/https\:\/\/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
-RUN apk add --update sed curl bash && apk update && apk upgrade
+#RUN sed -i 's/http\:\/\/dl-cdn.alpinelinux.org/https\:\/\/alpine.global.ssl.fastly.net/g' /etc/apk/repositories
+#RUN apk add --update sed curl bash && apk update && apk upgrade
 
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN mkdir /logs
 
 COPY transformEnvironment.sh /
